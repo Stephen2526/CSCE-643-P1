@@ -7,6 +7,76 @@
 using namespace std;
 using namespace cv;
 
+void onMouse(int, int, int, int, void*)
+vector<Point> mousePickFourPoints(Mat&)
+int markPoints(Mat&, vector<Point>&)
+int remDistortion(Mat&, vector<Point2f>&, vector<Point2f>&)
+
+/***main function***/
+int main(int argc, char** argv) {
+	//argument verification
+	if (argc != 2) {
+		cerr << "Usage: ./fourPoints image" << endl;
+		return -1;
+	}
+	//initialize
+	Mat img = imread(argv[1], CV_LOAD_IMAGE_COLOR);
+	
+	if (img.empty() ) 
+    { 
+          cout << "Error loading the image" << endl;
+          return -1; 
+    }
+	vector<Point2f> imgPoints;
+	//fourPoints = mousePickFourPoints(img);
+	//markPoints(img, fourPoints);
+
+	//wall
+	// imgPoints.push_back(Point(1266, 527));
+	// imgPoints.push_back(Point(1624, 520));
+	// imgPoints.push_back(Point(1620, 861));
+	// imgPoints.push_back(Point(1270, 922));
+	
+	//points on floor 4*4
+	// imgPoints.push_back(Point(1424, 1371)); //tl
+	// imgPoints.push_back(Point(1697, 1271)); //tr
+	// imgPoints.push_back(Point(2057, 1361)); //br
+	// imgPoints.push_back(Point(1800, 1488)); //bl
+
+	//floor small 1*1
+	// imgPoints.push_back(Point(1513, 1398));
+	// imgPoints.push_back(Point(1584, 1371));
+	// imgPoints.push_back(Point(1669, 1398));
+	// imgPoints.push_back(Point(1600, 1426));
+
+	//floor small 2*2
+	imgPoints.push_back(Point(1435, 1428));
+	imgPoints.push_back(Point(1584, 1371));
+	imgPoints.push_back(Point(1766, 1424));
+	imgPoints.push_back(Point(1619, 1489));
+
+	//four points in the world
+	vector<Point2f> worPoints;
+	float x1 = floor(img.size().width/2);
+	float y1 = floor(img.size().height/2);
+	
+	//wall
+	// worPoints.push_back(Point(x1, y1)); //tl
+	// worPoints.push_back(Point(x1+500, y1)); //tr
+	// worPoints.push_back(Point(x1+500, y1+500)); //br
+	// worPoints.push_back(Point(x1, y1+500));  //bl
+	
+	//floor
+	worPoints.push_back(Point(x1, y1)); //tl
+	worPoints.push_back(Point(x1+100, y1)); //tr
+	worPoints.push_back(Point(x1+100, y1+100)); //br
+	worPoints.push_back(Point(x1, y1+100));  //bl
+	cout << "worPoints = " << endl << " " << worPoints << endl << endl;
+
+	remDistortion(img, imgPoints, worPoints);
+	return 0;
+}
+
 /***call back of mouse action***/
 void onMouse(int evt, int x, int y, int flags, void* param) {
     if(evt == CV_EVENT_RBUTTONDOWN) {
@@ -16,6 +86,7 @@ void onMouse(int evt, int x, int y, int flags, void* param) {
         cout << "x: " << x <<" y: " << y << " size: " << ptPtr->size()<< endl;
     }
 }
+
 /***mouse picking four points and mark the point on the image***/
 vector<Point> mousePickFourPoints(Mat& img) {
 	//initialize
@@ -24,15 +95,13 @@ vector<Point> mousePickFourPoints(Mat& img) {
 	//handler for mouse
 	setMouseCallback("Picking Four Points", onMouse, (void*) &points);
 	//wait for mouse picking
-	//while(points.size() < 4) {
-		imshow("Picking Four Points", img);
+	imshow("Picking Four Points", img);
 		
-		//return time
-		while (points.size() < 4) {
-			waitKey(0);
-		}
+	//return time
+	while (points.size() < 4) {
+		waitKey(0);
+	}
 		
-	//}
 	return points;
 }
 
@@ -59,8 +128,6 @@ int markPoints(Mat& img, vector<Point>& fourPoints) {
 
 /***calculate H and remove the projective distortion***/
 int remDistortion(Mat& img, vector<Point2f>& srcPoints, vector<Point2f>& resPoints) {
-	//cout << "debug 1" << endl;
-
 	//construct matrix A
 	Mat A = Mat(8,9, CV_32F, cvScalar(0.));
 	for (int i = 0; i < 4; i++) {
@@ -75,21 +142,19 @@ int remDistortion(Mat& img, vector<Point2f>& srcPoints, vector<Point2f>& resPoin
 		A.at<float>(i*2+1, 7) = (-1)*srcPoints[i].y*resPoints[i].y;
 		A.at<float>(i*2+1, 8) = (-1)*resPoints[i].y;
 	}
-	//cout << "debug 2" << endl;
 	//cout << "A size: " << A.rows << "*" << A.cols << endl;
 	cout << "A = "<< endl << " "  << A << endl << endl;
+
 	//SVD Decomposition of A
 	Mat w, u, vt;
-	//cout << "debug 3" << endl;
 	SVD::compute(A, w, u, vt, SVD::FULL_UV);
-	//out << "debug 4" << endl;
 	//cout << "vt size: " << vt.rows << "*" << vt.cols << endl;
 	//cout << "w size: " << w.rows << "*" << w.cols << endl;
 	//cout << "u size: " << u.rows << "*" << u.cols << endl;
 	//cout << "vt = "<< endl << " "  << vt << endl << endl;
+
 	//determine H
 	Mat H = Mat(3,3, CV_32F, cvScalar(0.));
-
 	H.at<float>(0,0) = vt.at<float>(8,0);
 	H.at<float>(0,1) = vt.at<float>(8,1);
 	H.at<float>(0,2) = vt.at<float>(8,2);
@@ -99,7 +164,6 @@ int remDistortion(Mat& img, vector<Point2f>& srcPoints, vector<Point2f>& resPoin
 	H.at<float>(2,0) = vt.at<float>(8,6);
 	H.at<float>(2,1) = vt.at<float>(8,7);
 	H.at<float>(2,2) = vt.at<float>(8,8);
-
 	cout << "H = " << endl << " " << H << endl << endl;
 	//cout << "H_inv = " << endl << " " << H.inv() << endl << endl;
 
@@ -126,72 +190,5 @@ int remDistortion(Mat& img, vector<Point2f>& srcPoints, vector<Point2f>& resPoin
 	imshow("rectified Image", recImg);
 	waitKey(0);
 	//imwrite( "../rectified.jpg", recImg);
-	return 0;
-}
-
-
-/***main function***/
-int main(int argc, char** argv) {
-	//argument verification
-	if (argc != 2) {
-		cerr << "Usage: ./fourPoints image" << endl;
-		return -1;
-	}
-	//initialize
-	Mat img = imread(argv[1], CV_LOAD_IMAGE_COLOR);
-	
-	if (img.empty() ) 
-    { 
-          cout << "Error loading the image" << endl;
-          return -1; 
-    }
-	vector<Point2f> imgPoints;
-	//fourPoints = mousePickFourPoints(img);
-	//markPoints(img, fourPoints);
-	/*imgPoints.push_back(Point(1266, 527));
-	imgPoints.push_back(Point(1624, 520));
-	imgPoints.push_back(Point(1620, 861));
-	imgPoints.push_back(Point(1270, 922));*/
-	
-	//points on floor 4*4
-	// imgPoints.push_back(Point(1424, 1371)); //tl
-	// imgPoints.push_back(Point(1697, 1271)); //tr
-	// imgPoints.push_back(Point(2057, 1361)); //br
-	// imgPoints.push_back(Point(1800, 1488)); //bl
-
-	//floor small 1*1
-	// imgPoints.push_back(Point(1513, 1398));
-	// imgPoints.push_back(Point(1584, 1371));
-	// imgPoints.push_back(Point(1669, 1398));
-	// imgPoints.push_back(Point(1600, 1426));
-
-	//floor small 2*2
-	imgPoints.push_back(Point(1435, 1428));
-	imgPoints.push_back(Point(1584, 1371));
-	imgPoints.push_back(Point(1766, 1424));
-	imgPoints.push_back(Point(1619, 1489));
-
-	/*imgPoints.push_back(Point(836, 209));
-	imgPoints.push_back(Point(1193, 200));
-	imgPoints.push_back(Point(836, 239));
-	imgPoints.push_back(Point(1194, 227));*/
-
-	//four points in the world
-	vector<Point2f> worPoints;
-	float x1 = floor(img.size().width/2);
-	float y1 = floor(img.size().height/2);
-	//wall
-	// worPoints.push_back(Point(x1, y1)); //tl
-	// worPoints.push_back(Point(x1+500, y1)); //tr
-	// worPoints.push_back(Point(x1+500, y1+500)); //br
-	// worPoints.push_back(Point(x1, y1+500));  //bl
-	//floor
-	worPoints.push_back(Point(x1, y1)); //tl
-	worPoints.push_back(Point(x1+100, y1)); //tr
-	worPoints.push_back(Point(x1+100, y1+100)); //br
-	worPoints.push_back(Point(x1, y1+100));  //bl
-	cout << "worPoints = " << endl << " " << worPoints << endl << endl;
-
-	remDistortion(img, imgPoints, worPoints);
 	return 0;
 }

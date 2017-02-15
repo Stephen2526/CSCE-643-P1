@@ -23,41 +23,18 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 	vector<Point3f> points;
-	//wall 
-	// points.push_back(Point3f(1266, 528, 1)); //tl
-	// points.push_back(Point3f(1624, 520, 1)); //tr
-	// points.push_back(Point3f(1620, 861, 1)); //br
-	// points.push_back(Point3f(1270, 921, 1)); //bl
-
+	
 	//wall (works)
 	points.push_back(Point3f(1266, 527, 1)); //tl
 	points.push_back(Point3f(1624, 520, 1)); //tr
 	points.push_back(Point3f(1620, 861, 1)); //br
 	points.push_back(Point3f(1270, 922, 1)); //bl
 
-	//floor 2*2 (not works)
-	// points.push_back(Point3f(1528, 1460, 1)); //tl
-	// points.push_back(Point3f(1674, 1397, 1)); //tr
-	// points.push_back(Point3f(1867, 1453, 1)); //br
-	// points.push_back(Point3f(1723, 1523, 1)); //bl
-
 	//floor 1*1 (works)
 	// points.push_back(Point3f(1568, 1317, 1)); //tl
 	// points.push_back(Point3f(1634, 1292, 1)); //tr
 	// points.push_back(Point3f(1718, 1316, 1)); //br
 	// points.push_back(Point3f(1654, 1341, 1)); //bl
-
-	//floor 4*4 (not works)
-	// points.push_back(Point3f(1424, 1371, 1)); //tl
-	// points.push_back(Point3f(1697, 1271, 1)); //tr
-	// points.push_back(Point3f(2057, 1361, 1)); //br
-	// points.push_back(Point3f(1800, 1488, 1)); //bl
-
-	//door01 red 
-	// points.push_back(Point3f(489, 85, 1)); //tl
-	// points.push_back(Point3f(547, 97, 1)); //tr
-	// points.push_back(Point3f(547, 308, 1)); //br
-	// points.push_back(Point3f(489, 320, 1)); //bl
 
 	vector<Point3f> lines;
 	lines.push_back(crossProduct(points[0], points[1]));
@@ -81,17 +58,6 @@ int main(int argc, char** argv) {
 	H_p.at<float>(2,1) = infLine.y/infLine.z;
 	H_p.at<float>(2,2) = infLine.z/infLine.z;
 	cout << "H_p = " << endl << " " << H_p << endl << endl;
-
-	// Mat H_a = Mat(3,3, CV_32F, cvScalar(0.));
-	// H_a.at<float>(0,0) = 1.0;
-	// H_a.at<float>(0,1) = 0.1;
-	// H_a.at<float>(1,1) = 1.0;
-	// H_a.at<float>(2,2) = 1.0;
-	// cout << "H_a = " << endl << " " << H_a << endl << endl;
-
-	// Mat H = Mat(3,3, CV_32F, cvScalar(0.));
-	// H = H_a * H_p;
-	// cout << "H = " << endl << " " << H << endl << endl;
 
 	Mat recImg;
 	warpPerspective(img, recImg, H_p, img.size()*2);

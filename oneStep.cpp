@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
 	//input points
 	vector<Point3f> points; //points in projective
 
-	//wall big 1 pair
+	//wall big 1 pair (works)
 	points.push_back(Point3f(419, 68, 1)); //tl
 	points.push_back(Point3f(657, 92, 1)); //tr
 	points.push_back(Point3f(666, 300, 1)); //br
@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
 	points.push_back(Point3f(1522, 1460, 1)); //br
 	points.push_back(Point3f(1438, 1494, 1)); //br*/
 
-	//floor 1*1  works
+	//floor 1*1  (works)
 	//1 pair
 	/*points.push_back(Point3f(1568, 1317, 1)); //tl
 	points.push_back(Point3f(1634, 1292, 1)); //tr
@@ -140,6 +140,7 @@ int main(int argc, char** argv) {
 	lines.push_back(crossProduct(points[13], points[15]));
 
 	cout << "lines = " << endl << lines << endl << endl;
+
 	//construct A
 	Mat A = Mat(5,6,CV_32F,Scalar::all(0.));
 	for (int i = 0; i < 5; i++) {
@@ -154,7 +155,6 @@ int main(int argc, char** argv) {
 
 	//SVD A
 	Mat Aw, Au, Avt;
-	//cout << "debug 3" << endl;
 	SVD::compute(A, Aw, Au, Avt, SVD::FULL_UV);
 	cout << "Aw = " << endl << Aw << endl <<endl;
 	cout << "Au = " << endl << Au << endl <<endl;
@@ -196,60 +196,6 @@ int main(int argc, char** argv) {
 	cout << "H = " << endl << H << endl <<endl;		
 	cout << "H.inv = " << endl << H.inv()<< endl <<endl;	
 	
-	//verify the decomposition
-
-
-	/*Mat S = Mat(2,2,CV_32F,Scalar::all(0.));
-	Mat tmp = C(Rect(0,0,2,2));
-	tmp.copyTo(S);
-	cout << "S = " << endl << S << endl << endl;
-
-	//calculate K, S=K*K_t
-	//SVD S
-	Mat Sw, Su, Svt;
-	//cout << "debug 3" << endl;
-	SVD::compute(S, Sw, Su, Svt, SVD::FULL_UV);
-	cout << "Sw = " << endl << Sw << endl <<endl;
-	cout << "Su = " << endl << Su << endl <<endl;
-	cout << "Sv = " << endl << Svt.t() << endl <<endl;
-
-	Mat Sw_root;
-	pow(Sw, 0.5, Sw_root);
-	cout << "Sw_root = " << endl << Sw_root << endl <<endl;	
-
-	Mat Sww = Mat(2,2,CV_32F,Scalar::all(0.));
-	Sww.at<float>(0,0) = Sw_root.at<float>(0);
-	Sww.at<float>(1,1) = Sw_root.at<float>(1);
-	cout << "Sww = " << endl << Sww << endl <<endl;
-
-	Mat K = Su*Sww*(Su.t());
-	//Mat K = Su*Sww;
-	cout << "K = " << endl << K << endl <<endl;
-
-	//calcualte v
-	Mat Rhs = Mat(2,1 ,CV_32F,Scalar::all(0.));
-	Mat v = Mat(2,1 ,CV_32F,Scalar::all(0.));
-	Rhs.at<float>(0) = C.at<float>(0,2);
-	Rhs.at<float>(1) = C.at<float>(1,2);
-	cout << "Rhs = " << endl << Rhs << endl <<endl;
-	solve(S,Rhs,v,DECOMP_SVD);
-	cout << "v = " << endl << v << endl <<endl;
-
-	//construct Hp
-	Mat Hp = Mat::eye(3,3,CV_32F);
-	Hp.at<float>(2,0) = v.at<float>(0);
-	Hp.at<float>(2,1) = v.at<float>(1);
-	cout << "Hp = " << endl << Hp << endl <<endl;
-	//construct Ha
-	Mat Ha = Mat::eye(3,3,CV_32F);
-	tmp = Ha(Rect(0,0,2,2));
-	K.copyTo(tmp);
-	cout << "Ha = " << endl << Ha << endl <<endl;
-
-	//construct H
-	Mat H = Hp*Ha;
-	cout << "H = " << endl << H << endl <<endl;*/	
-
 	transform(img, H.inv());
 
 	//calculate four points in rectified image

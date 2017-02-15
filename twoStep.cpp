@@ -24,18 +24,6 @@ int main(int argc, char** argv) {
 		return -1;
 	}
 	vector<Point3f> points; //points in affine
-	//three points on the wall
-	// points.push_back(Point3f(347, 144, 1)); //tl
-	// points.push_back(Point3f(517, 165, 1)); //tr
-	// points.push_back(Point3f(526, 280, 1)); //br
-	// points.push_back(Point3f(356, 258, 1)); //bl
-	
-	//four points above elevator door
-	// points.push_back(Point3f(597, 40, 1)); //tl
-	// points.push_back(Point3f(618, 42, 1)); //tr
-	// points.push_back(Point3f(620, 59, 1)); //br
-	// points.push_back(Point3f(600, 57, 1)); //bl
-
 	//self draw wall 
 	//red
 	points.push_back(Point3f(1933, 804, 1)); //tl
@@ -58,25 +46,7 @@ int main(int argc, char** argv) {
 	// points.push_back(Point3f(2118, 1705, 1)); //br
 	// points.push_back(Point3f(2000, 1716, 1)); //bl
 
-	//door01
-	//red
-	// points.push_back(Point3f(489, 85, 1)); //tl
-	// points.push_back(Point3f(547, 97, 1)); //tr
-	// points.push_back(Point3f(547, 308, 1)); //br
-	// //green
-	// points.push_back(Point3f(215, 101, 1)); //tl
-	// points.push_back(Point3f(371, 117, 1)); //tr
-	// points.push_back(Point3f(372, 306, 1)); //br
-	// points.push_back(Point3f(220, 329, 1)); //bl
-
-
 	vector<Point3f> lines;
-	// lines.push_back(crossProduct(points[0], points[1]));
-	// lines.push_back(crossProduct(points[1], points[2]));
-	// lines.push_back(crossProduct(points[0], points[2]));
-	// lines.push_back(crossProduct(points[3], points[1]));
-
-	//door01
 	lines.push_back(crossProduct(points[0], points[1]));
 	lines.push_back(crossProduct(points[1], points[2]));
 	lines.push_back(crossProduct(points[3], points[5]));
@@ -97,7 +67,6 @@ int main(int argc, char** argv) {
 
 	//SVD A
 	Mat w, u, vt;
-	//cout << "debug 3" << endl;
 	SVD::compute(A, w, u, vt, SVD::FULL_UV);
 	cout << "w = " << endl << w << endl <<endl;	
 	cout << "vt = " << endl << vt << endl <<endl;
@@ -119,7 +88,6 @@ int main(int argc, char** argv) {
 
 	//SVD S
 	Mat S_w, S_u, S_vt;
-	//cout << "debug 3" << endl;
 	SVD::compute(S, S_w, S_u, S_vt, SVD::FULL_UV);
 	cout << "S_w = " << endl << S_w << endl <<endl;
 	cout << "S_u = " << endl << S_u << endl <<endl;
@@ -143,21 +111,6 @@ int main(int argc, char** argv) {
 	K.copyTo(tmp);
 	cout << "H_a = " << endl << H_a << endl <<endl;	
 
-	/*//SVD C_inf_*_'
-	Mat C = Mat(3,3, CV_32F, Scalar::all(0.));
-	C.at<float>(0,0) = s.at<float>(0,0);
-	C.at<float>(0,1) = C.at<float>(1,0) = s.at<float>(1,0);
-	C.at<float>(1,1) = s.at<float>(2,0);
-
-	cout << "C = " << endl << C << endl <<endl;
-
-	Mat C_w, C_u, C_vt;
-	//cout << "debug 3" << endl;
-	SVD::compute(C, C_w, C_u, C_vt, SVD::FULL_UV);
-	cout << "C_w = " << endl << C_w << endl <<endl;	
-	cout << "C_u = " << endl << C_u << endl <<endl;	
-	cout << "C_vt = " << endl << C_vt << endl <<endl;*/
-
 	transform(img, H_a.inv());
 
 	//calculate four points in rectified image
@@ -167,6 +120,7 @@ int main(int argc, char** argv) {
 		markPoints.at<float>(1,i) = lines[i].y;
 		markPoints.at<float>(2,i) = lines[i].z;
 	}
+
 	Mat recPoints = H_a.t()*markPoints;
 	cout << "recPoints = " << endl << " " << recPoints << endl << endl;
 	Mat inRecPoints(recPoints);
